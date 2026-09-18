@@ -1,0 +1,23 @@
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+ramlens
+*.out
+
+# Build directories
+build/
+bin/
+
+# IDE files
+.vscode/
+.vs/
+.idea/
+
+# Operating system files
+.DS_Store
+
+# Temporary files
+*.tmp
+*.swp
