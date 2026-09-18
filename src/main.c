@@ -1,16 +1,21 @@
 #include<stdio.h>
 #include "memory.h"
 int main(void) {
-    Block block;
+    Block *memory = memory_init(1024);
 
-    block.start = 0;
-    block.size = 200;
-    block.is_free = 0;
+    if (memory == NULL)
+    {
+        printf("Failed to initialize memory.\n");
+        return 1;
+    }
 
-    printf("RAMLens - Memory Management Simulator\n");
-    printf("Block start : %zu KB\n", block.start);
-    printf("Block size  : %zu KB\n", block.size);
+    printf("RAMLens - Memory Management Simulator\n\n");
 
+    printf("Start : %zu KB\n", memory->start);
+    printf("Size  : %zu KB\n", memory->size);
+    printf("Free  : %s\n", memory->is_free ? "Yes" : "No");
+
+    memory_destroy(memory);
 
     return 0;
 }

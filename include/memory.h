@@ -12,4 +12,7 @@ typedef struct Block {
     struct Block *next;
 } Block;
 
+Block *memory_init(size_t size);
+void memory_destroy(Block *head);
+
 #endif
