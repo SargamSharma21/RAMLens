@@ -11,9 +11,7 @@ int main(void) {
 
     printf("RAMLens - Memory Management Simulator\n\n");
 
-    printf("Start : %zu KB\n", memory->start);
-    printf("Size  : %zu KB\n", memory->size);
-    printf("Free  : %s\n", memory->is_free ? "Yes" : "No");
+    memory_print(memory);
 
     memory_destroy(memory);
 

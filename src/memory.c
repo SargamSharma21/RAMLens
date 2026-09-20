@@ -32,3 +32,35 @@ void memory_destroy(Block *head)
         head = next;
     }
 }
+
+void memory_print(Block *head)
+{
+    if (head == NULL)
+    {
+        printf("Memory is not initialized.\n");
+        return;
+    }
+
+    printf("\n========== MEMORY MAP ==========\n");
+
+    Block *current = head;
+
+    while (current != NULL)
+    {
+        printf("Start: %zu KB | Size: %zu KB | ", 
+               current->start, current->size);
+
+        if (current->is_free)
+        {
+            printf("FREE\n");
+        }
+        else
+        {
+            printf("USED | Process: %s\n", current->process_name);
+        }
+
+        current = current->next;
+    }
+
+    printf("================================\n");
+}

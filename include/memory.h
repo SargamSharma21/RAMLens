@@ -14,5 +14,6 @@ typedef struct Block {
 
 Block *memory_init(size_t size);
 void memory_destroy(Block *head);
+void memory_print(Block *head);
 
 #endif
