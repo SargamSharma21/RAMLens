@@ -26,7 +26,19 @@ int main(void) {
         printf("Allocation failed\n");
     }
     memory_print(memory);
-    memory_destroy(memory);
 
+
+    printf("\nFreeing Chrome...\n");
+
+    if(memory_free(memory , "Chrome"))
+    {
+        printf("Deallocating successful!\n");
+    }
+    else 
+    {
+        printf("Deallocation failed!\n");
+    }
+
+    memory_print(memory);
     return 0;
 }

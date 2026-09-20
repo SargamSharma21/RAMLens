@@ -43,3 +43,25 @@ int memory_allocate(Block *head , const char *process_name , size_t size)
 
     return 0;
 }
+
+
+int memory_free(Block *head , const char *process_name)
+{
+    Block *current = head;
+
+    while (current != NULL)
+    {
+        if(!current->is_free &&
+           strcmp(current->process_name , process_name) == 0)
+        {
+            current->is_free = 1;
+            current->process_name[0] = '\0';
+
+            return 1;
+        }
+
+        current = current->next;
+    }
+
+    return 0;
+}
