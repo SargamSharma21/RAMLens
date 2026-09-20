@@ -1,5 +1,7 @@
 #include<stdio.h>
 #include "memory.h"
+#include "allocator.h"
+
 int main(void) {
     Block *memory = memory_init(1024);
 
@@ -13,6 +15,17 @@ int main(void) {
 
     memory_print(memory);
 
+    printf("\nAllocating Chrome...\n");
+
+    if(memory_allocate(memory , "Chrome" , 200)) 
+    {
+        printf("Allocation successful!\n");
+    }
+    else
+    {
+        printf("Allocation failed\n");
+    }
+    memory_print(memory);
     memory_destroy(memory);
 
     return 0;
