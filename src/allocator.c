@@ -65,3 +65,25 @@ int memory_free(Block *head , const char *process_name)
 
     return 0;
 }
+
+void memory_coalesce(Block *head)
+{
+    Block *current = head;
+
+    while(current != NULL && current->next != NULL)
+    {
+        if(current->is_free && current->next->is_free)
+        {
+            Block *next = current->next;
+
+            current->size += next->size;
+            current->next = next->next;
+
+            free(next);
+        }
+        else
+        {
+            current = current->next;
+        }
+    }
+}

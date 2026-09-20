@@ -27,12 +27,34 @@ int main(void) {
     }
     memory_print(memory);
 
+    if(memory_allocate(memory, "VSCode", 300))
+    {
+        printf("Allocation successful!\n");
+    }
+    else
+    {
+        printf("Allocation failed\n");
+    }
+    memory_print(memory);
 
     printf("\nFreeing Chrome...\n");
 
     if(memory_free(memory , "Chrome"))
     {
         printf("Deallocating successful!\n");
+
+        memory_coalesce(memory);
+    }
+    else 
+    {
+        printf("Deallocation failed!\n");
+    }
+
+    if(memory_free(memory , "VSCode"))
+    {
+        printf("Deallocating successful!\n");
+
+        memory_coalesce(memory);
     }
     else 
     {
