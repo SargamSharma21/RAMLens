@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "allocator.h"
 
@@ -10,10 +11,31 @@ int memory_allocate(Block *head , const char *process_name , size_t size)
     {
         if(current->is_free && current->size >= size) 
         {
+            if (current->size > size)
+            {
+                Block *new_block = malloc(sizeof(Block));
+
+                if(new_block == NULL)
+                {
+                    return 0;
+                }
+
+                new_block->start = current->start + size;
+                new_block->size = current->size - size;
+                new_block->is_free = 1;
+                new_block->process_name[0] = '\0';
+
+                new_block->next = current->next;
+                current->next = new_block;
+
+                current->size = size;
+            }
+
             current->is_free = 0;
             strcpy(current->process_name , process_name);
 
             return 1;
+            
         }
 
         current = current->next;
