@@ -13,54 +13,85 @@ int main(void) {
 
     printf("RAMLens - Memory Management Simulator\n\n");
 
-    memory_print(memory);
+    printf("\nAllocating Chrome using First Fit...\n");
 
-    printf("\nAllocating Chrome...\n");
-
-    if(memory_allocate(memory , "Chrome" , 200)) 
+    if (memory_allocate(memory, "Chrome", 400))
     {
         printf("Allocation successful!\n");
     }
     else
     {
-        printf("Allocation failed\n");
+        printf("Allocation failed!\n");
     }
+
     memory_print(memory);
 
-    if(memory_allocate(memory, "VSCode", 300))
+    printf("\nAllocating VSCode using First Fit...\n");
+
+    if (memory_allocate(memory, "VSCode", 200))
     {
         printf("Allocation successful!\n");
     }
     else
     {
-        printf("Allocation failed\n");
+        printf("Allocation failed!\n");
     }
+
+    memory_print(memory);
+
+    printf("\nAllocating Google using First Fit...\n");
+
+    if (memory_allocate(memory, "Google", 250))
+    {
+        printf("Allocation successful!\n");
+    }
+    else
+    {
+        printf("Allocation failed!\n");
+    }
+
     memory_print(memory);
 
     printf("\nFreeing Chrome...\n");
 
-    if(memory_free(memory , "Chrome"))
+    if (memory_free(memory, "Chrome"))
     {
-        printf("Deallocating successful!\n");
-
+        printf("Deallocation successful!\n");
         memory_coalesce(memory);
     }
-    else 
+    else
     {
         printf("Deallocation failed!\n");
     }
 
-    if(memory_free(memory , "VSCode"))
-    {
-        printf("Deallocating successful!\n");
+    printf("\nFreeing Google...\n");
 
-        memory_coalesce(memory);
+    memory_print(memory);
+
+    if (memory_free(memory, "Google"))
+    {
+        printf("Deallocation successeful!\n");
+        // memory_coalesce(memory);
     }
-    else 
+    else
     {
         printf("Deallocation failed!\n");
     }
 
     memory_print(memory);
+
+    printf("\nAllocating Firefox using Best Fit...\n");
+
+    if (memory_allocate_best_fit(memory, "Firefox", 200))
+    {
+        printf("Best-Fit allocation successful!\n");
+    }
+    else
+    {
+        printf("Best-Fit allocation failed!\n");
+    }
+
+    memory_print(memory);
+
     return 0;
 }
