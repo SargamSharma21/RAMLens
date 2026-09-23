@@ -3,6 +3,8 @@
 
 #include "allocator.h"
 
+static Block *next_fit_position = NULL;
+
 int memory_allocate(Block *head , const char *process_name , size_t size)
 {
     Block *current = head;
@@ -139,6 +141,81 @@ int memory_allocate_worst_fit(
 
     worst->is_free = 0;
     strcpy(worst->process_name , process_name);
+
+    return 1;
+}
+
+int memory_allocate_next_fit(
+    Block *head,
+    const char *process_name,
+    size_t size)
+{
+    if (head == NULL)
+    {
+        return 0;
+    }
+
+    if (next_fit_position == NULL)
+    {
+        next_fit_position = head;
+    }
+
+    Block *current = next_fit_position;
+    Block *start = current;
+
+    while (1)
+    {
+        if (current->is_free && current->size >= size)
+        {
+            // found a suitable block
+            break;
+        }
+
+        if (current->next != NULL)
+        {
+            current = current->next;
+        }
+        else
+        {
+            current = head;
+        }
+
+        if (current == start)
+        {
+            return 0;   // checked every block
+        }
+    }
+
+    if (current->size > size)
+    {
+        Block *new_block = malloc(sizeof(Block));
+
+        if (new_block == NULL)
+        {
+            return 0;
+        }
+
+        new_block->start = current->start + size;
+        new_block->size = current->size - size;
+        new_block->is_free = 1;
+        new_block->process_name[0] = '\0';
+
+        new_block->next = current->next;
+        current->next = new_block;
+
+        current->size = size;
+    }
+
+    current->is_free = 0;
+    strcpy(current->process_name, process_name);
+    if (current->next != NULL)
+    {
+        next_fit_position = current->next;
+    }
+    else
+    {
+        next_fit_position = head;
+    }
 
     return 1;
 }

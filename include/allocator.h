@@ -14,4 +14,10 @@ int memory_allocate_worst_fit(
     size_t size
 );
 
+int memory_allocate_next_fit(
+    Block *head,
+    const char *process_name,
+    size_t size
+);
+
 #endif
