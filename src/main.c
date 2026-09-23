@@ -80,15 +80,15 @@ int main(void) {
 
     memory_print(memory);
 
-    printf("\nAllocating Firefox using Best Fit...\n");
+    printf("\nAllocating Firefox using Worst Fit...\n");
 
-    if (memory_allocate_best_fit(memory, "Firefox", 200))
+    if (memory_allocate_worst_fit(memory, "Firefox", 200))
     {
-        printf("Best-Fit allocation successful!\n");
+        printf("Worst-Fit allocation successful!\n");
     }
     else
     {
-        printf("Best-Fit allocation failed!\n");
+        printf("Worst-Fit allocation failed!\n");
     }
 
     memory_print(memory);

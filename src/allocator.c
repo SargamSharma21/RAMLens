@@ -96,6 +96,53 @@ int memory_allocate_best_fit(
     return 1;
 }
 
+int memory_allocate_worst_fit(
+    Block *head , 
+    const char *process_name,
+    size_t size)
+{
+    Block *current = head;
+    Block *worst = NULL;
+
+    while(current != NULL) {
+        if(current->is_free && current->size >= size) {
+            if(worst == NULL || current->size > worst->size) {
+                worst = current;
+            }
+        }
+
+        current = current -> next;
+
+    }
+
+    if(worst == NULL) {
+        return 0;
+    }
+
+    if(worst->size > size) {
+        Block *new_block = malloc(sizeof(Block));
+
+        if(new_block == NULL) {
+            return 0;
+        }
+        
+        new_block->start = worst->start + size;
+        new_block->size = worst->size - size;
+        new_block->is_free = 1;
+        new_block->process_name[0] = '\0';
+
+        new_block->next = worst->next;
+        worst->next = new_block;
+
+        worst->size = size;
+    }
+
+    worst->is_free = 0;
+    strcpy(worst->process_name , process_name);
+
+    return 1;
+}
+
 
 int memory_free(Block *head , const char *process_name)
 {
