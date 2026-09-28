@@ -4,6 +4,8 @@
 
 int main(void) {
     Block *memory = memory_init(1024);
+    AllocationStrategy strategy = FIRST_FIT;
+
 
     if (memory == NULL)
     {
@@ -15,7 +17,12 @@ int main(void) {
 
     printf("\nAllocating Chrome using First Fit...\n");
 
-    if (memory_allocate(memory, "Chrome", 400))
+    if (memory_allocate_with_strategy(
+    memory,
+    "Chrome",
+    400,
+    strategy
+    ))
     {
         printf("Allocation successful!\n");
     }
@@ -25,10 +32,70 @@ int main(void) {
     }
 
     memory_print(memory);
+    printf("Strategy: %s\n", strategy_name(strategy));
+    // printf("\nAllocating VSCode using First Fit...\n");
 
-    printf("\nAllocating VSCode using First Fit...\n");
+    // if (memory_allocate(memory, "VSCode", 200))
+    // {
+    //     printf("Allocation successful!\n");
+    // }
+    // else
+    // {
+    //     printf("Allocation failed!\n");
+    // }
 
-    if (memory_allocate(memory, "VSCode", 200))
+    // memory_print(memory);
+
+    // printf("\nAllocating Google using First Fit...\n");
+
+    // if (memory_allocate(memory, "Google", 250))
+    // {
+    //     printf("Allocation successful!\n");
+    // }
+    // else
+    // {
+    //     printf("Allocation failed!\n");
+    // }
+
+    // memory_print(memory);
+
+    // printf("\nFreeing Chrome...\n");
+
+    // if (memory_free(memory, "Chrome"))
+    // {
+    //     printf("Deallocation successful!\n");
+    //     memory_coalesce(memory);
+    // }
+    // else
+    // {
+    //     printf("Deallocation failed!\n");
+    // }
+
+    // printf("\nFreeing Google...\n");
+
+    // memory_print(memory);
+
+    // if (memory_free(memory, "Google"))
+    // {
+    //     printf("Deallocation successeful!\n");
+    //     // memory_coalesce(memory);
+    // }
+    // else
+    // {
+    //     printf("Deallocation failed!\n");
+    // }
+
+    // memory_print(memory);
+
+    printf("\nAllocating Firefox using Best Fit...\n");
+
+    strategy = BEST_FIT;
+
+    if (memory_allocate_with_strategy(
+            memory,
+            "Firefox",
+            200,
+            strategy))
     {
         printf("Allocation successful!\n");
     }
@@ -38,60 +105,7 @@ int main(void) {
     }
 
     memory_print(memory);
-
-    printf("\nAllocating Google using First Fit...\n");
-
-    if (memory_allocate(memory, "Google", 250))
-    {
-        printf("Allocation successful!\n");
-    }
-    else
-    {
-        printf("Allocation failed!\n");
-    }
-
-    memory_print(memory);
-
-    printf("\nFreeing Chrome...\n");
-
-    if (memory_free(memory, "Chrome"))
-    {
-        printf("Deallocation successful!\n");
-        memory_coalesce(memory);
-    }
-    else
-    {
-        printf("Deallocation failed!\n");
-    }
-
-    printf("\nFreeing Google...\n");
-
-    memory_print(memory);
-
-    if (memory_free(memory, "Google"))
-    {
-        printf("Deallocation successeful!\n");
-        // memory_coalesce(memory);
-    }
-    else
-    {
-        printf("Deallocation failed!\n");
-    }
-
-    memory_print(memory);
-
-    printf("\nAllocating Firefox using Worst Fit...\n");
-
-    if (memory_allocate_worst_fit(memory, "Firefox", 200))
-    {
-        printf("Worst-Fit allocation successful!\n");
-    }
-    else
-    {
-        printf("Worst-Fit allocation failed!\n");
-    }
-
-    memory_print(memory);
-
+    
+    printf("Strategy: %s\n", strategy_name(strategy));
     return 0;
 }

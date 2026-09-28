@@ -263,3 +263,50 @@ void memory_coalesce(Block *head)
         }
     }
 }
+
+
+int memory_allocate_with_strategy(
+    Block *head,
+    const char *process_name,
+    size_t size,
+    AllocationStrategy strategy)
+{
+    switch (strategy)
+    {
+        case FIRST_FIT:
+            return memory_allocate(head, process_name, size);
+
+        case BEST_FIT:
+            return memory_allocate_best_fit(head, process_name, size);
+
+        case WORST_FIT:
+            return memory_allocate_worst_fit(head, process_name, size);
+
+        case NEXT_FIT:
+            return memory_allocate_next_fit(head, process_name, size);
+
+        default:
+            return 0;
+    }
+}
+
+const char *strategy_name(AllocationStrategy strategy)
+{
+    switch (strategy)
+    {
+        case FIRST_FIT:
+            return "First Fit";
+
+        case BEST_FIT:
+            return "Best Fit";
+
+        case WORST_FIT:
+            return "Worst Fit";
+
+        case NEXT_FIT:
+            return "Next Fit";
+
+        default:
+            return "Unknown";
+    }
+}

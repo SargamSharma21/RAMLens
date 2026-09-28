@@ -20,4 +20,21 @@ int memory_allocate_next_fit(
     size_t size
 );
 
+typedef enum
+{
+    FIRST_FIT,
+    BEST_FIT,
+    WORST_FIT,
+    NEXT_FIT
+} AllocationStrategy;
+
+int memory_allocate_with_strategy(
+    Block *head,
+    const char *process_name,
+    size_t size,
+    AllocationStrategy strategy
+);
+
+const char *strategy_name(AllocationStrategy strategy);
+
 #endif
