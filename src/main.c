@@ -1,11 +1,12 @@
 #include<stdio.h>
+#include<string.h>
+#include <stdlib.h>
 #include "memory.h"
 #include "allocator.h"
 
 int main(void) {
     Block *memory = memory_init(1024);
     AllocationStrategy strategy = FIRST_FIT;
-
 
     if (memory == NULL)
     {
@@ -15,97 +16,128 @@ int main(void) {
 
     printf("RAMLens - Memory Management Simulator\n\n");
 
-    printf("\nAllocating Chrome using First Fit...\n");
+    char command[100];
 
-    if (memory_allocate_with_strategy(
-    memory,
-    "Chrome",
-    400,
-    strategy
-    ))
+    while (1)
     {
-        printf("Allocation successful!\n");
+        printf("RAMLens > ");
+
+        if (fgets(command, sizeof(command), stdin) == NULL)
+        {
+            break;
+        }
+
+        command[strcspn(command, "\n")] = '\0';
+
+        if (strcmp(command, "exit") == 0)
+        {
+            break;
+        }
+
+        char *token = strtok(command, " ");
+
+        if (token == NULL)
+        {
+            continue;
+        }
+
+        if (strcmp(token, "alloc") == 0)
+        {
+            char *process_name = strtok(NULL, " ");
+            char *size_string = strtok(NULL, " ");
+
+            if (process_name == NULL || size_string == NULL)
+            {
+                printf("Usage: alloc <process> <size>\n");
+                continue;
+            }
+
+            size_t size = atoi(size_string);
+
+            if (memory_allocate_with_strategy(
+                    memory,
+                    process_name,
+                    size,
+                    strategy))
+            {
+                printf("Allocation successful!\n");
+            }
+            else
+            {
+                printf("Allocation failed!\n");
+            }
+            memory_print(memory);
+        }
+        else if (strcmp(token, "free") == 0)
+        {
+            char *process_name = strtok(NULL, " ");
+
+            if (process_name == NULL)
+            {
+                printf("Usage: free <process>\n");
+                continue;
+            }
+
+            if (memory_free(memory, process_name))
+            {
+                printf("Deallocation successful!\n");
+
+                memory_coalesce(memory);
+            }
+            else
+            {
+                printf("Deallocation failed!\n");
+            }
+
+            memory_print(memory);
+        }
+        else if (strcmp(token, "strategy") == 0)
+        {
+            char *strategy_name_input = strtok(NULL, " ");
+
+            if (strategy_name_input == NULL)
+            {
+                printf("Usage: strategy <first|best|worst|next>\n");
+                continue;
+            }
+
+            if (strcmp(strategy_name_input, "first") == 0)
+            {
+                strategy = FIRST_FIT;
+            }
+            else if (strcmp(strategy_name_input, "best") == 0)
+            {
+                strategy = BEST_FIT;
+            }
+            else if (strcmp(strategy_name_input, "worst") == 0)
+            {
+                strategy = WORST_FIT;
+            }
+            else if (strcmp(strategy_name_input, "next") == 0)
+            {
+                strategy = NEXT_FIT;
+            }
+            else
+            {
+                printf("Unknown strategy: %s\n", strategy_name_input);
+                continue;
+            }
+
+            printf("Strategy changed to %s\n", strategy_name(strategy));
+        }
+        else if (strcmp(token, "map") == 0)
+        {
+            memory_print(memory);
+        }
+        else if (strcmp(token, "exit") == 0)
+        {
+            break;
+        }
+        else
+        {
+            printf("Unknown command: %s\n", token);
+        }
     }
-    else
-    {
-        printf("Allocation failed!\n");
-    }
-
-    memory_print(memory);
-    printf("Strategy: %s\n", strategy_name(strategy));
-    // printf("\nAllocating VSCode using First Fit...\n");
-
-    // if (memory_allocate(memory, "VSCode", 200))
-    // {
-    //     printf("Allocation successful!\n");
-    // }
-    // else
-    // {
-    //     printf("Allocation failed!\n");
-    // }
-
-    // memory_print(memory);
-
-    // printf("\nAllocating Google using First Fit...\n");
-
-    // if (memory_allocate(memory, "Google", 250))
-    // {
-    //     printf("Allocation successful!\n");
-    // }
-    // else
-    // {
-    //     printf("Allocation failed!\n");
-    // }
-
-    // memory_print(memory);
-
-    // printf("\nFreeing Chrome...\n");
-
-    // if (memory_free(memory, "Chrome"))
-    // {
-    //     printf("Deallocation successful!\n");
-    //     memory_coalesce(memory);
-    // }
-    // else
-    // {
-    //     printf("Deallocation failed!\n");
-    // }
-
-    // printf("\nFreeing Google...\n");
-
-    // memory_print(memory);
-
-    // if (memory_free(memory, "Google"))
-    // {
-    //     printf("Deallocation successeful!\n");
-    //     // memory_coalesce(memory);
-    // }
-    // else
-    // {
-    //     printf("Deallocation failed!\n");
-    // }
-
-    // memory_print(memory);
-
-    printf("\nAllocating Firefox using Best Fit...\n");
-
-    strategy = BEST_FIT;
-
-    if (memory_allocate_with_strategy(
-            memory,
-            "Firefox",
-            200,
-            strategy))
-    {
-        printf("Allocation successful!\n");
-    }
-    else
-    {
-        printf("Allocation failed!\n");
-    }
-
-    memory_print(memory);
     
-    printf("Strategy: %s\n", strategy_name(strategy));
     return 0;
 }
