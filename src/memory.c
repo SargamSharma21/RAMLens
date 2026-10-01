@@ -64,3 +64,41 @@ void memory_print(Block *head)
 
     printf("================================\n");
 }
+
+
+MemoryStats memory_get_stats(Block *head)
+{
+    MemoryStats stats = {0};
+    Block *current = head;
+
+    while(current != NULL) {
+        if(current->is_free == 0) {
+            stats.used_memory += current->size;
+            stats.allocated_blocks++;
+        }
+        else {
+            stats.free_memory += current->size;
+            stats.free_blocks++;
+
+            if (current->size > stats.largest_free_block)
+            {
+                stats.largest_free_block = current->size;
+            }
+        }
+
+
+        current = current->next;
+    }
+    stats.total_memory = stats.used_memory + stats.free_memory;
+    if (stats.free_memory > 0)
+    {
+        stats.external_fragmentation =
+            (1.0 - ((double)stats.largest_free_block / stats.free_memory)) * 100.0;
+    }
+    else
+    {
+        stats.external_fragmentation = 0.0;
+    }
+    
+    return stats;
+}

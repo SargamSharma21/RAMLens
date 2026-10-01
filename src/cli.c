@@ -87,6 +87,28 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
         {
             memory_print(memory);
         }
+        
+        else if (strcmp(token, "stats") == 0)
+        {
+            MemoryStats stats = memory_get_stats(memory);
+            double utilization = 0.0;
+
+            if (stats.total_memory > 0)
+            {
+                utilization =
+                    ((double)stats.used_memory / stats.total_memory) * 100.0;
+            }
+            printf("\n========== MEMORY STATISTICS ==========\n");
+            printf("Total Memory           : %zu KB\n", stats.total_memory);
+            printf("Used Memory            : %zu KB\n", stats.used_memory);
+            printf("Free Memory            : %zu KB\n", stats.free_memory);
+            printf("Allocated Blocks       : %d\n", stats.allocated_blocks);
+            printf("Free Blocks            : %d\n", stats.free_blocks);
+            printf("Largest Free Block     : %zu KB\n", stats.largest_free_block);
+            printf("Utilization            : %.2f%%\n", utilization);
+            printf("External Fragmentation : %.2f%%\n",stats.external_fragmentation);
+            printf("========================================\n");
+        }
 
         else if (strcmp(token, "strategy") == 0)
         {

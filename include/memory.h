@@ -12,6 +12,19 @@ typedef struct Block {
     struct Block *next;
 } Block;
 
+typedef struct {
+    size_t total_memory;
+    size_t used_memory;
+    size_t free_memory;
+
+    int allocated_blocks;
+    int free_blocks;
+    double external_fragmentation;
+    size_t largest_free_block;
+} MemoryStats;
+
+MemoryStats memory_get_stats(Block *head);
+
 Block *memory_init(size_t size);
 void memory_destroy(Block *head);
 void memory_print(Block *head);
