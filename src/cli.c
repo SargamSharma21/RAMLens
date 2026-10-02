@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "workload.h"
 #include "cli.h"
 
 void cli_run(Block *memory, AllocationStrategy *strategy)
@@ -100,7 +100,10 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
 
             memory_print(memory);
         }
-
+        else if (strcmp(token, "workload") == 0)
+        {
+            workload_run(memory, *strategy);
+        }
         else if (strcmp(token, "map") == 0)
         {
             memory_print(memory);
@@ -125,6 +128,7 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             printf("Largest Free Block     : %zu KB\n", stats.largest_free_block);
             printf("Utilization            : %.2f%%\n", utilization);
             printf("External Fragmentation : %.2f%%\n",stats.external_fragmentation);
+            printf("workload               : Show sample workload\n");
             printf("========================================\n");
         }
 
@@ -140,7 +144,7 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             printf("exit                     Exit RAMLens\n");
             printf("======================================\n");
         }
-        
+
         else if (strcmp(token, "strategy") == 0)
         {
             char *strategy_input = strtok(NULL, " ");
