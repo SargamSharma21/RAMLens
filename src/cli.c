@@ -128,6 +128,19 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             printf("========================================\n");
         }
 
+        else if (strcmp(token, "help") == 0)
+        {
+            printf("\n========== RAMLens Commands ==========\n");
+            printf("alloc <process> <size>   Allocate memory\n");
+            printf("free <process>           Free memory\n");
+            printf("map                      Show memory map\n");
+            printf("stats                    Show memory statistics\n");
+            printf("strategy <name>          Change allocation strategy\n");
+            printf("help                     Show commands\n");
+            printf("exit                     Exit RAMLens\n");
+            printf("======================================\n");
+        }
+        
         else if (strcmp(token, "strategy") == 0)
         {
             char *strategy_input = strtok(NULL, " ");
