@@ -55,11 +55,29 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             else
             {
                 printf("Allocation failed!\n");
+
+                MemoryStats stats = memory_get_stats(memory);
+
+                printf("\n========== ALLOCATION FAILURE ==========\n");
+                printf("Requested Memory   : %zu KB\n", size);
+                printf("Total Free Memory : %zu KB\n", stats.free_memory);
+                printf("Largest Free Block: %zu KB\n",
+                    stats.largest_free_block);
+
+                if (stats.free_memory < size)
+                {
+                    printf("Reason             : Insufficient free memory.\n");
+                }
+                else if (stats.largest_free_block < size)
+                {
+                    printf("Reason             : External fragmentation.\n");
+                }
+
+                printf("=========================================\n");
             }
 
             memory_print(memory);
         }
-
         else if (strcmp(token, "free") == 0)
         {
             char *process_name = strtok(NULL, " ");
