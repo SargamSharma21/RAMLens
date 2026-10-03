@@ -2,7 +2,9 @@
 
 #include "workload.h"
 
-void workload_run(Block *memory, AllocationStrategy strategy)
+MemoryStats workload_run(Block *memory,
+                         AllocationStrategy strategy,
+                         int verbose)
 {
     WorkloadOperation workload[] = {
         {WORKLOAD_ALLOC, "Chrome", 200},
@@ -15,15 +17,21 @@ void workload_run(Block *memory, AllocationStrategy strategy)
 
     size_t count = sizeof(workload) / sizeof(workload[0]);
 
-    printf("\n========== RUNNING WORKLOAD ==========\n");
+    if (verbose)
+    {
+        printf("\n========== RUNNING WORKLOAD ==========\n");
+    }
 
     for (size_t i = 0; i < count; i++)
     {
         if (workload[i].type == WORKLOAD_ALLOC)
         {
-            printf("\nALLOC %s %zu KB\n",
-                   workload[i].process_name,
-                   workload[i].size);
+            if (verbose)
+            {
+                printf("\nALLOC %s %zu KB\n",
+                       workload[i].process_name,
+                       workload[i].size);
+            }
 
             if (memory_allocate_with_strategy(
                     memory,
@@ -31,31 +39,55 @@ void workload_run(Block *memory, AllocationStrategy strategy)
                     workload[i].size,
                     strategy))
             {
-                printf("Allocation successful!\n");
+                if (verbose)
+                {
+                    printf("Allocation successful!\n");
+                }
             }
             else
             {
-                printf("Allocation failed!\n");
+                if (verbose)
+                {
+                    printf("Allocation failed!\n");
+                }
             }
         }
         else if (workload[i].type == WORKLOAD_FREE)
         {
-            printf("\nFREE %s\n",
-                   workload[i].process_name);
+            if (verbose)
+            {
+                printf("\nFREE %s\n",
+                       workload[i].process_name);
+            }
 
             if (memory_free(memory, workload[i].process_name))
             {
-                printf("Deallocation successful!\n");
+                if (verbose)
+                {
+                    printf("Deallocation successful!\n");
+                }
+
                 memory_coalesce(memory);
             }
             else
             {
-                printf("Deallocation failed!\n");
+                if (verbose)
+                {
+                    printf("Deallocation failed!\n");
+                }
             }
         }
 
-        memory_print(memory);
+        if (verbose)
+        {
+            memory_print(memory);
+        }
     }
 
-    printf("\n========== WORKLOAD COMPLETE ==========\n");
+    if (verbose)
+    {
+        printf("\n========== WORKLOAD COMPLETE ==========\n");
+    }
+
+    return memory_get_stats(memory);
 }

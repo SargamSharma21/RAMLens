@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -std=c11
 
 TARGET = ramlens
 
-SRC = src/main.c src/memory.c src/allocator.c src/cli.c src/workload.c
+SRC = src/main.c src/memory.c src/allocator.c src/cli.c src/workload.c src/benchmark.c
 INCLUDES = -Iinclude
 
 $(TARGET): $(SRC)

@@ -100,9 +100,13 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
 
             memory_print(memory);
         }
+        else if (strcmp(token, "benchmark") == 0)
+        {
+            benchmark_run();
+        }
         else if (strcmp(token, "workload") == 0)
         {
-            workload_run(memory, *strategy);
+            workload_run(memory, *strategy , 1);
         }
         else if (strcmp(token, "map") == 0)
         {
@@ -129,6 +133,7 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             printf("Utilization            : %.2f%%\n", utilization);
             printf("External Fragmentation : %.2f%%\n",stats.external_fragmentation);
             printf("workload               : Show sample workload\n");
+            printf("benchmark              : Compare allocation strategies\n");
             printf("========================================\n");
         }
 

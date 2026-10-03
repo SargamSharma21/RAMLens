@@ -3,6 +3,7 @@
 
 #include "memory.h"
 #include "allocator.h"
+#include "benchmark.h"
 
 void cli_run(Block *memory, AllocationStrategy *strategy);
 

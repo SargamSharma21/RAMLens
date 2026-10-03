@@ -17,6 +17,6 @@ typedef struct {
     size_t size;
 } WorkloadOperation;
 
-void workload_run(Block *memory, AllocationStrategy strategy);
+MemoryStats workload_run(Block *memory, AllocationStrategy strategy, int verbose);
 
 #endif
