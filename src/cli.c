@@ -4,7 +4,7 @@
 #include "workload.h"
 #include "cli.h"
 
-void cli_run(Block *memory, AllocationStrategy *strategy)
+void cli_run(Block **memory, AllocationStrategy *strategy)
 {
     char command[100];
 
@@ -45,7 +45,7 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             size_t size = atoi(size_string);
 
             if (memory_allocate_with_strategy(
-                    memory,
+                    *memory,
                     process_name,
                     size,
                     *strategy))
@@ -56,7 +56,7 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             {
                 printf("Allocation failed!\n");
 
-                MemoryStats stats = memory_get_stats(memory);
+                MemoryStats stats = memory_get_stats(*memory);
 
                 printf("\n========== ALLOCATION FAILURE ==========\n");
                 printf("Requested Memory   : %zu KB\n", size);
@@ -76,7 +76,7 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
                 printf("=========================================\n");
             }
 
-            memory_print(memory);
+            memory_print(*memory);
         }
         else if (strcmp(token, "free") == 0)
         {
@@ -88,34 +88,92 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
                 continue;
             }
 
-            if (memory_free(memory, process_name))
+            if (memory_free(*memory, process_name))
             {
                 printf("Deallocation successful!\n");
-                memory_coalesce(memory);
+                memory_coalesce(*memory);
             }
             else
             {
                 printf("Deallocation failed!\n");
             }
 
-            memory_print(memory);
+            memory_print(*memory);
         }
         else if (strcmp(token, "benchmark") == 0)
         {
-            benchmark_run();
+            char *workload_input = strtok(NULL, " ");
+
+            if (workload_input == NULL)
+            {
+                printf("Usage: benchmark <basic|fragmentation|stress>\n");
+                continue;
+            }
+
+            WorkloadType workload_type;
+
+            if (strcmp(workload_input, "basic") == 0)
+            {
+                workload_type = WORKLOAD_BASIC;
+            }
+            else if (strcmp(workload_input, "fragmentation") == 0)
+            {
+                workload_type = WORKLOAD_FRAGMENTATION;
+            }
+            else if (strcmp(workload_input, "stress") == 0)
+            {
+                workload_type = WORKLOAD_STRESS;
+            }
+            else
+            {
+                printf("Unknown workload: %s\n", workload_input);
+                printf("Available workloads: basic, fragmentation, stress\n");
+                continue;
+            }
+
+            benchmark_run(workload_type);
         }
         else if (strcmp(token, "workload") == 0)
         {
-            workload_run(memory, *strategy , 1);
+            char *workload_input = strtok(NULL, " ");
+
+            if (workload_input == NULL)
+            {
+                printf("Usage: workload <basic|fragmentation|stress>\n");
+                continue;
+            }
+
+            WorkloadType workload_type;
+
+            if (strcmp(workload_input, "basic") == 0)
+            {
+                workload_type = WORKLOAD_BASIC;
+            }
+            else if (strcmp(workload_input, "fragmentation") == 0)
+            {
+                workload_type = WORKLOAD_FRAGMENTATION;
+            }
+            else if (strcmp(workload_input, "stress") == 0)
+            {
+                workload_type = WORKLOAD_STRESS;
+            }
+            else
+            {
+                printf("Unknown workload: %s\n", workload_input);
+                printf("Available workloads: basic, fragmentation, stress\n");
+                continue;
+            }
+
+            workload_run(*memory, *strategy, workload_type, 1);
         }
         else if (strcmp(token, "map") == 0)
         {
-            memory_print(memory);
+            memory_print(*memory);
         }
         
         else if (strcmp(token, "stats") == 0)
         {
-            MemoryStats stats = memory_get_stats(memory);
+            MemoryStats stats = memory_get_stats(*memory);
             double utilization = 0.0;
 
             if (stats.total_memory > 0)
@@ -132,8 +190,6 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             printf("Largest Free Block     : %zu KB\n", stats.largest_free_block);
             printf("Utilization            : %.2f%%\n", utilization);
             printf("External Fragmentation : %.2f%%\n",stats.external_fragmentation);
-            printf("workload               : Show sample workload\n");
-            printf("benchmark              : Compare allocation strategies\n");
             printf("========================================\n");
         }
 
@@ -146,7 +202,12 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             printf("stats                    Show memory statistics\n");
             printf("strategy <name>          Change allocation strategy\n");
             printf("help                     Show commands\n");
+            printf("workload <type>          Run a workload\n");
+            printf("                         Types: basic, fragmentation, stress\n");
+            printf("benchmark <type>         Benchmark a workload\n");
+            printf("                         Types: basic, fragmentation, stress\n");
             printf("exit                     Exit RAMLens\n");
+            printf("reset                    Reset memory to initial state\n");
             printf("======================================\n");
         }
 
@@ -185,7 +246,21 @@ void cli_run(Block *memory, AllocationStrategy *strategy)
             printf("Strategy changed to %s\n",
                    strategy_name(*strategy));
         }
+        else if (strcmp(token, "reset") == 0)
+        {
+            memory_destroy(*memory);
 
+            *memory = memory_init(1024);
+
+            if (*memory == NULL)
+            {
+                printf("Memory reset failed!\n");
+                return;
+            }
+
+            printf("Memory reset successfully!\n");
+            memory_print(*memory);
+        }
         else
         {
             printf("Unknown command: %s\n", token);

@@ -6,7 +6,7 @@
 
 #define BENCHMARK_RUNS 10000
 
-void benchmark_run(void)
+void benchmark_run(WorkloadType workload_type)
 {
     AllocationStrategy strategies[] = {
         FIRST_FIT,
@@ -17,7 +17,29 @@ void benchmark_run(void)
 
     size_t count = sizeof(strategies) / sizeof(strategies[0]);
 
-    printf("\n========== STRATEGY COMPARISON ==========\n\n");
+    const char *workload_name;
+
+    switch (workload_type)
+    {
+        case WORKLOAD_BASIC:
+            workload_name = "BASIC";
+            break;
+
+        case WORKLOAD_FRAGMENTATION:
+            workload_name = "FRAGMENTATION";
+            break;
+
+        case WORKLOAD_STRESS:
+            workload_name = "STRESS";
+            break;
+
+        default:
+            workload_name = "UNKNOWN";
+            break;
+    }
+
+    printf("\n========== %s BENCHMARK ==========\n\n",
+           workload_name);
 
     printf("%-12s %-12s %-12s %-12s %-18s %-18s %-15s\n",
            "Strategy",
@@ -26,7 +48,7 @@ void benchmark_run(void)
            "Free Blocks",
            "Largest Free",
            "Fragmentation",
-           "Time (ms)");
+           "Avg Time (ms)");
 
     printf("-----------------------------------------------------------------------------------------------\n");
 
@@ -44,7 +66,12 @@ void benchmark_run(void)
                 return;
             }
 
-            workload_run(memory, strategies[i], 0);
+            workload_run(
+                memory,
+                strategies[i],
+                workload_type,
+                0
+            );
 
             memory_destroy(memory);
         }
@@ -59,7 +86,7 @@ void benchmark_run(void)
 
         /*
          * Run the workload once more to obtain
-         * the final memory statistics.
+         * final memory statistics.
          */
         Block *memory = memory_init(1024);
 
@@ -70,7 +97,12 @@ void benchmark_run(void)
         }
 
         MemoryStats stats =
-            workload_run(memory, strategies[i], 0);
+            workload_run(
+                memory,
+                strategies[i],
+                workload_type,
+                0
+            );
 
         memory_destroy(memory);
 
