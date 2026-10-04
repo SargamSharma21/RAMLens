@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <stdint.h>
+
 #include "workload.h"
 #include "cli.h"
 
@@ -31,6 +34,8 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
             break;
         }
 
+        /* ================= ALLOCATE ================= */
+
         if (strcmp(token, "alloc") == 0)
         {
             char *process_name = strtok(NULL, " ");
@@ -42,7 +47,52 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
                 continue;
             }
 
-            size_t size = atoi(size_string);
+            /*
+             * Reject negative memory sizes before
+             * calling strtoul().
+             */
+            if (size_string[0] == '-')
+            {
+                printf("Memory size cannot be negative.\n");
+                continue;
+            }
+
+            char *endptr;
+
+            errno = 0;
+
+            unsigned long value =
+                strtoul(size_string, &endptr, 10);
+
+            /*
+             * No digits were found or extra characters
+             * were present after the number.
+             */
+            if (endptr == size_string || *endptr != '\0')
+            {
+                printf("Invalid memory size: %s\n", size_string);
+                continue;
+            }
+
+            /*
+             * Check for overflow.
+             */
+            if (errno == ERANGE || value > SIZE_MAX)
+            {
+                printf("Memory size is too large.\n");
+                continue;
+            }
+
+            /*
+             * Zero-sized allocations are not allowed.
+             */
+            if (value == 0)
+            {
+                printf("Memory size must be greater than 0.\n");
+                continue;
+            }
+
+            size_t size = (size_t)value;
 
             if (memory_allocate_with_strategy(
                     *memory,
@@ -56,13 +106,15 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
             {
                 printf("Allocation failed!\n");
 
-                MemoryStats stats = memory_get_stats(*memory);
+                MemoryStats stats =
+                    memory_get_stats(*memory);
 
                 printf("\n========== ALLOCATION FAILURE ==========\n");
                 printf("Requested Memory   : %zu KB\n", size);
-                printf("Total Free Memory : %zu KB\n", stats.free_memory);
-                printf("Largest Free Block: %zu KB\n",
-                    stats.largest_free_block);
+                printf("Total Free Memory  : %zu KB\n",
+                       stats.free_memory);
+                printf("Largest Free Block : %zu KB\n",
+                       stats.largest_free_block);
 
                 if (stats.free_memory < size)
                 {
@@ -78,6 +130,9 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
 
             memory_print(*memory);
         }
+
+        /* ================= FREE ================= */
+
         else if (strcmp(token, "free") == 0)
         {
             char *process_name = strtok(NULL, " ");
@@ -100,6 +155,9 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
 
             memory_print(*memory);
         }
+
+        /* ================= BENCHMARK ================= */
+
         else if (strcmp(token, "benchmark") == 0)
         {
             char *workload_input = strtok(NULL, " ");
@@ -133,6 +191,9 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
 
             benchmark_run(workload_type);
         }
+
+        /* ================= WORKLOAD ================= */
+
         else if (strcmp(token, "workload") == 0)
         {
             char *workload_input = strtok(NULL, " ");
@@ -164,34 +225,58 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
                 continue;
             }
 
-            workload_run(*memory, *strategy, workload_type, 1);
+            workload_run(
+                *memory,
+                *strategy,
+                workload_type,
+                1
+            );
         }
+
+        /* ================= MAP ================= */
+
         else if (strcmp(token, "map") == 0)
         {
             memory_print(*memory);
         }
-        
+
+        /* ================= STATS ================= */
+
         else if (strcmp(token, "stats") == 0)
         {
-            MemoryStats stats = memory_get_stats(*memory);
+            MemoryStats stats =
+                memory_get_stats(*memory);
+
             double utilization = 0.0;
 
             if (stats.total_memory > 0)
             {
                 utilization =
-                    ((double)stats.used_memory / stats.total_memory) * 100.0;
+                    ((double)stats.used_memory /
+                     stats.total_memory) * 100.0;
             }
+
             printf("\n========== MEMORY STATISTICS ==========\n");
-            printf("Total Memory           : %zu KB\n", stats.total_memory);
-            printf("Used Memory            : %zu KB\n", stats.used_memory);
-            printf("Free Memory            : %zu KB\n", stats.free_memory);
-            printf("Allocated Blocks       : %d\n", stats.allocated_blocks);
-            printf("Free Blocks            : %d\n", stats.free_blocks);
-            printf("Largest Free Block     : %zu KB\n", stats.largest_free_block);
-            printf("Utilization            : %.2f%%\n", utilization);
-            printf("External Fragmentation : %.2f%%\n",stats.external_fragmentation);
+            printf("Total Memory           : %zu KB\n",
+                   stats.total_memory);
+            printf("Used Memory            : %zu KB\n",
+                   stats.used_memory);
+            printf("Free Memory            : %zu KB\n",
+                   stats.free_memory);
+            printf("Allocated Blocks       : %d\n",
+                   stats.allocated_blocks);
+            printf("Free Blocks            : %d\n",
+                   stats.free_blocks);
+            printf("Largest Free Block     : %zu KB\n",
+                   stats.largest_free_block);
+            printf("Utilization            : %.2f%%\n",
+                   utilization);
+            printf("External Fragmentation : %.2f%%\n",
+                   stats.external_fragmentation);
             printf("========================================\n");
         }
+
+        /* ================= HELP ================= */
 
         else if (strcmp(token, "help") == 0)
         {
@@ -210,6 +295,8 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
             printf("reset                    Reset memory to initial state\n");
             printf("======================================\n");
         }
+
+        /* ================= STRATEGY ================= */
 
         else if (strcmp(token, "strategy") == 0)
         {
@@ -246,6 +333,9 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
             printf("Strategy changed to %s\n",
                    strategy_name(*strategy));
         }
+
+        /* ================= RESET ================= */
+
         else if (strcmp(token, "reset") == 0)
         {
             memory_destroy(*memory);
@@ -261,6 +351,9 @@ void cli_run(Block **memory, AllocationStrategy *strategy)
             printf("Memory reset successfully!\n");
             memory_print(*memory);
         }
+
+        /* ================= UNKNOWN COMMAND ================= */
+
         else
         {
             printf("Unknown command: %s\n", token);
