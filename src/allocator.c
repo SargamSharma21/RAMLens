@@ -5,6 +5,25 @@
 
 static Block *next_fit_position = NULL;
 
+
+static int process_exists(Block *head, const char *process_name)
+{
+    Block *current = head;
+
+    while (current != NULL)
+    {
+        if (!current->is_free &&
+            strcmp(current->process_name, process_name) == 0)
+        {
+            return 1;
+        }
+
+        current = current->next;
+    }
+
+    return 0;
+}
+
 int memory_allocate(Block *head , const char *process_name , size_t size)
 {
     Block *current = head;
@@ -271,6 +290,11 @@ int memory_allocate_with_strategy(
     size_t size,
     AllocationStrategy strategy)
 {
+    if (process_exists(head, process_name))
+    {
+        return 0;
+    }
+
     switch (strategy)
     {
         case FIRST_FIT:
