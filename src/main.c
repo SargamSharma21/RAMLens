@@ -18,7 +18,7 @@ int main(void) {
 
     AllocationStrategy strategy = FIRST_FIT;
 
-    cli_run(memory, &strategy);
+    cli_run(&memory, &strategy);
 
     memory_destroy(memory);
 

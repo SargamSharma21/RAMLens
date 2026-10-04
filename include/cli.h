@@ -5,6 +5,6 @@
 #include "allocator.h"
 #include "benchmark.h"
 
-void cli_run(Block *memory, AllocationStrategy *strategy);
+void cli_run(Block **memory, AllocationStrategy *strategy);
 
 #endif
